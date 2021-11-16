@@ -22,7 +22,7 @@ type Config struct {
 }
 
 func ReadConfig(config *Config, profile string) {
-	configFile, err := os.Open(fmt.Sprintf("config_%s.yaml"))
+	configFile, err := os.Open(fmt.Sprintf("config_%s.yaml", profile))
 	if err != nil {
 		utils.ProcessError(err)
 	}
@@ -32,5 +32,6 @@ func ReadConfig(config *Config, profile string) {
 	if err != nil {
 		utils.ProcessError(err)
 	}
+	fmt.Printf("Configuration loaded %s", configFile.Name())
 
 }

@@ -11,14 +11,15 @@ import (
 
 var configFile = config.Config{}
 var (
-	profile     = kingpin.Flag("aws-profile", "aws base profile which configure on ~/.aws/credentials").Required().String()
-	mfa         = kingpin.Command("mfa", "aws cli login with mfa code")
-	mfaCode     = mfa.Flag("code", "MFA Code").Required().String()
-	cluster     = kingpin.Command("setup-cluster", "choose EKS cluster to load configuration")
-	clusterArg  = cluster.Arg("name", "name of eks cluster").Required().String()
-	docker      = kingpin.Command("ecr-login", "login with docker cli to ecr repository")
-	regionFlag  = docker.Flag("region", "region on aws ecr repository").Required().String()
-	repoUrlFlag = docker.Flag("url", "url on aws of ecr repository").Required().String()
+	mfa     = kingpin.Command("mfa", "aws cli login with mfa code")
+	mfaCode = mfa.Flag("code", "MFA Code").Required().String()
+	profile = mfa.Flag("profile", "aws base profile which configure on ~/.aws/credentials").Required().String()
+
+	//cluster     = kingpin.Command("setup-cluster", "choose EKS cluster to load configuration")
+	//clusterArg  = cluster.Arg("name", "name of eks cluster").Required().String()
+	//docker      = kingpin.Command("ecr-login", "login with docker cli to ecr repository")
+	//regionFlag  = docker.Arg("region", "region on aws ecr repository").Required().String()
+	//repoUrlFlag = docker.Arg("url", "url on aws of ecr repository").Required().String()
 )
 var configured bool
 var dir string
@@ -40,13 +41,14 @@ func initConfiguration(profile string) {
 }
 func commandsParsing() {
 	if !configured {
-		fmt.Printf(".aws directory not found in %s", dir)
-		fmt.Print("please run the next command: 'aws configure' ") //TODO: ask from user set the configuration creds and config this.
+		fmt.Printf(".aws directory not found in %s\n", dir)
+		fmt.Print("please run the next command: 'aws configure'\n")
 		os.Exit(1)
 	}
+
 	switch kingpin.Parse() {
 	// login mfa code
-	case "mfa":
+	case mfa.FullCommand():
 		initConfiguration(*profile)
 		cmd.MFALogin(*mfaCode, configFile)
 	}
