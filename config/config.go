@@ -1,0 +1,35 @@
+package config
+
+import (
+	"gopkg.in/yaml.v2"
+	"os"
+	"smart.login.aws/utils"
+)
+
+type Config struct {
+	Cloud struct {
+		STSDuration int32   `yaml:"token_duration"`
+		AWSAccount  string `yaml:"aws_account"`
+		AWSUser     string `yaml:"aws_user"`
+		Profile     string `yaml:"profile"`
+		StsProfile  string `yaml:"sts_profile"`
+		Region      string `yaml:"aws_region"`
+	} `yaml:"cloud"`
+	Docker struct {
+		RepoURL string `yaml:"repository_url"`
+	} `yaml:"docker"`
+}
+
+func ReadConfig(config *Config) {
+	configFile, err := os.Open("config.yaml")
+	if err != nil {
+		utils.ProcessError(err)
+	}
+	defer configFile.Close()
+	decoder := yaml.NewDecoder(configFile)
+	err = decoder.Decode(&config)
+	if err != nil {
+		utils.ProcessError(err)
+	}
+
+}

@@ -1,0 +1,11 @@
+# aws cloud configuration
+cloud:
+  token_duration: 129600
+  aws_account: "346151604852"
+  aws_user: "igork"
+  profile: "irule"
+  aws_region: "us-east-1"
+  sts_profile: "sts"
+# docker repo
+docker:
+  repository_url: "346151604852.dkr.ecr.us-east-1.amazonaws.com"
