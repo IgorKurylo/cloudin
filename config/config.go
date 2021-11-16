@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v2"
 	"os"
 	"smart.login.aws/utils"
@@ -8,7 +9,7 @@ import (
 
 type Config struct {
 	Cloud struct {
-		STSDuration int32   `yaml:"token_duration"`
+		STSDuration int32  `yaml:"token_duration"`
 		AWSAccount  string `yaml:"aws_account"`
 		AWSUser     string `yaml:"aws_user"`
 		Profile     string `yaml:"profile"`
@@ -20,8 +21,8 @@ type Config struct {
 	} `yaml:"docker"`
 }
 
-func ReadConfig(config *Config) {
-	configFile, err := os.Open("config.yaml")
+func ReadConfig(config *Config, profile string) {
+	configFile, err := os.Open(fmt.Sprintf("config_%s.yaml"))
 	if err != nil {
 		utils.ProcessError(err)
 	}
