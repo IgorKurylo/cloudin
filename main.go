@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
-	"smart.login.aws/cmd"
-	"smart.login.aws/config"
-	"smart.login.aws/utils"
+	"cloudin/cmd"
+	"cloudin/config"
+	"cloudin/utils"
 )
 
 var configFile = config.Config{}
