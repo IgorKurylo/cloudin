@@ -1,12 +1,12 @@
 package cmd
 
 import (
+	"cloudin/config"
+	_ "cloudin/config"
+	"cloudin/utils"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"smart.login.aws/config"
-	_ "smart.login.aws/config"
-	"smart.login.aws/utils"
 )
 
 var (

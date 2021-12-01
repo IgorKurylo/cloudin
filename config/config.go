@@ -1,10 +1,10 @@
 package config
 
 import (
+	"cloudin/utils"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"os"
-	"smart.login.aws/utils"
 )
 
 type Config struct {

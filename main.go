@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"gopkg.in/alecthomas/kingpin.v2"
-	"os"
 	"cloudin/cmd"
 	"cloudin/config"
 	"cloudin/utils"
+	"fmt"
+	"gopkg.in/alecthomas/kingpin.v2"
+	"os"
 )
 
 var configFile = config.Config{}
