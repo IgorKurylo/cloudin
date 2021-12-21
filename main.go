@@ -40,7 +40,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	kingpin.Version("0.0.1")
+	kingpin.Version(BuildVersion)
 	commandsParsing()
 
 }
