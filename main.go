@@ -1,23 +1,25 @@
 package main
 
 import (
+	"bufio"
 	"cloudin/cmd"
 	"cloudin/config"
 	"cloudin/utils"
 	"fmt"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
+	"strings"
 )
 
 var configFile = config.Config{}
 var (
-	mfa     = kingpin.Command("mfa", "aws cli login with mfa code")
-	mfaCode = mfa.Flag("code", "MFA Code").Required().String()
-	profile = mfa.Flag("profile", "aws base profile which configure on ~/.aws/credentials").Required().String()
+	configure = kingpin.Command("configure", "Configuration for Cloud In")
+	mfa       = kingpin.Command("mfa", "aws cli login with mfa code")
+	mfaCode   = mfa.Flag("code", "MFA Code").Required().String()
+	docker    = kingpin.Command("ecr-login", "aws cli login to ecr repository")
 
 	//cluster     = kingpin.Command("setup-cluster", "choose EKS cluster to load configuration")
 	//clusterArg  = cluster.Arg("name", "name of eks cluster").Required().String()
-	//docker      = kingpin.Command("ecr-login", "login with docker cli to ecr repository")
 	//regionFlag  = docker.Arg("region", "region on aws ecr repository").Required().String()
 	//repoUrlFlag = docker.Arg("url", "url on aws of ecr repository").Required().String()
 )
@@ -26,18 +28,20 @@ var dir string
 
 func main() {
 	configured, dir = utils.ScanAWSDirectory()
-	commandExists := utils.CommandExists("aws")
-	if !commandExists {
-		fmt.Printf("aws cli not found")
+	awsCliExists := utils.CommandExists("aws")
+	dockerCliExists := utils.CommandExists("docker")
+	if !awsCliExists && !dockerCliExists {
+		fmt.Printf("aws & docker cli not found, please install and try again")
 		os.Exit(1)
 	}
+	initConfiguration()
 
 	kingpin.Version("0.0.1")
 	commandsParsing()
 
 }
-func initConfiguration(profile string) {
-	config.ReadConfig(&configFile, profile)
+func initConfiguration() {
+	config.LoadConfig(&configFile)
 }
 func commandsParsing() {
 	if !configured {
@@ -48,8 +52,22 @@ func commandsParsing() {
 
 	switch kingpin.Parse() {
 	// login mfa code
+	case configure.FullCommand():
+		readConfiguration()
 	case mfa.FullCommand():
-		initConfiguration(*profile)
 		cmd.MFALogin(*mfaCode, configFile)
 	}
+}
+
+func readConfiguration() {
+
+	reader := bufio.NewReader(os.Stdin)
+	configSet := make(map[string]string)
+	for i := 0; i < len(config.ConfigurationParams); i++ {
+		fmt.Printf("%s: ", config.ConfigurationParams[i])
+		result, _ := reader.ReadString('\n')
+		configSet[config.ConfigurationParams[i]] = strings.TrimSuffix(result, "\n")
+	}
+	config.SaveConfig(configSet)
+
 }

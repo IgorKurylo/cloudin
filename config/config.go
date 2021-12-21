@@ -4,7 +4,18 @@ import (
 	"cloudin/utils"
 	"fmt"
 	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"log"
 	"os"
+)
+
+var (
+	exportProfile       = "sts"
+	tokenDuration       = 129600
+	directoryConfigName = ".cloudin"
+	fileConfigName      = "config.yaml"
+	repoUrlTemplate     = "%s.dkr.ecr.%s.amazonaws.com"
+	ConfigurationParams = []string{"aws_account", "aws_user", "profile", "region"}
 )
 
 type Config struct {
@@ -21,17 +32,60 @@ type Config struct {
 	} `yaml:"docker"`
 }
 
-func ReadConfig(config *Config, profile string) {
-	configFile, err := os.Open(fmt.Sprintf("config_%s.yaml", profile))
+func buildConfig(configSet map[string]string, config *Config) {
+	config.Cloud.StsProfile = exportProfile
+	config.Cloud.Region = configSet[ConfigurationParams[3]]
+	config.Cloud.Profile = configSet[ConfigurationParams[2]]
+	config.Cloud.AWSUser = configSet[ConfigurationParams[1]]
+	config.Cloud.AWSAccount = configSet[ConfigurationParams[0]]
+	config.Cloud.STSDuration = int32(tokenDuration)
+	config.Docker.RepoURL = fmt.Sprintf(repoUrlTemplate, config.Cloud.AWSAccount, config.Cloud.Region)
+}
+func LoadConfig(config *Config) {
+	configPathDir := configPath()
+	configFile, err := os.Open(configPathDir)
 	if err != nil {
 		utils.ProcessError(err)
 	}
 	defer configFile.Close()
-	decoder := yaml.NewDecoder(configFile)
-	err = decoder.Decode(&config)
+	load(configFile, config)
+	fmt.Printf("Configuration loaded %s", configFile.Name())
+}
+func SaveConfig(configSet map[string]string) {
+	config := &Config{}
+	configPathDir := configPath()
+	_, err := os.Stat(configPathDir)
+
+	if err != nil {
+		err := os.Mkdir(configPathDir, 0755)
+		if err != nil {
+			log.Fatalf("Error occurred on configuration %v", err)
+		}
+		buildConfig(configSet, config)
+	} else {
+		buildConfig(configSet, config)
+
+	}
+	saveToFile(config, fmt.Sprintf("%s/%s", configPathDir, fileConfigName))
+}
+
+func configPath() string {
+	homeDir, _ := os.UserHomeDir()
+	configPathDir := fmt.Sprintf("%s/%s", homeDir, directoryConfigName)
+	return configPathDir
+}
+func saveToFile(config *Config, pathFile string) {
+	configData, err := yaml.Marshal(config)
+	err = ioutil.WriteFile(pathFile, configData, 0644)
 	if err != nil {
 		utils.ProcessError(err)
 	}
-	fmt.Printf("Configuration loaded %s", configFile.Name())
-
+	fmt.Printf("Configuration saved %s", pathFile)
+}
+func load(configFilePath *os.File, config *Config) {
+	decoder := yaml.NewDecoder(configFilePath)
+	err := decoder.Decode(&config)
+	if err != nil {
+		utils.ProcessError(err)
+	}
 }
