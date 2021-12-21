@@ -45,6 +45,7 @@ func LoadConfig(config *Config) {
 	configPathDir := configPath()
 	configFile, err := os.Open(configPathDir)
 	if err != nil {
+		fmt.Printf("Config file not exists, please run configure command")
 		utils.ProcessError(err)
 	}
 	defer configFile.Close()

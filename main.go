@@ -11,6 +11,10 @@ import (
 	"strings"
 )
 
+var (
+	BuildVersion string = ""
+	BuildTime    string = ""
+)
 var configFile = config.Config{}
 var (
 	configure = kingpin.Command("configure", "Configuration for Cloud In")
@@ -27,6 +31,7 @@ var configured bool
 var dir string
 
 func main() {
+	printVersionInfo()
 	configured, dir = utils.ScanAWSDirectory()
 	awsCliExists := utils.CommandExists("aws")
 	dockerCliExists := utils.CommandExists("docker")
@@ -34,7 +39,6 @@ func main() {
 		fmt.Printf("aws & docker cli not found, please install and try again")
 		os.Exit(1)
 	}
-	initConfiguration()
 
 	kingpin.Version("0.0.1")
 	commandsParsing()
@@ -55,7 +59,11 @@ func commandsParsing() {
 	case configure.FullCommand():
 		readConfiguration()
 	case mfa.FullCommand():
+		initConfiguration()
 		cmd.MFALogin(*mfaCode, configFile)
+	case docker.FullCommand():
+		initConfiguration()
+		cmd.DockerLogin(configFile, false)
 	}
 }
 
@@ -69,5 +77,11 @@ func readConfiguration() {
 		configSet[config.ConfigurationParams[i]] = strings.TrimSuffix(result, "\n")
 	}
 	config.SaveConfig(configSet)
+
+}
+func printVersionInfo() {
+	fmt.Println(fmt.Sprintf("CLI Application CloudIn\n"))
+	fmt.Println(fmt.Sprintf("BuildVersion: %s\n", BuildVersion))
+	fmt.Println(fmt.Sprintf("BuildTime: %s", BuildTime))
 
 }
