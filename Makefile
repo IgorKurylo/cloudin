@@ -13,5 +13,4 @@ compile:
 
 all: build compile
 
-clean: go clean
 
