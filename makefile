@@ -5,7 +5,8 @@ time: BuildTime=${date +'%m-%d-%Y_%H-%M'}
 
 LDFLAGS=--ldflags="-X 'main.BuildTime=${BuildTime} -X 'main.BuildVersion=${BuildVersion}"
 
-build: go build ${LDFLAGS} -o artifact/${BINARY_NAME}-build main.go
+build:
+     go build ${LDFLAGS} -o artifact/${BINARY_NAME}-build main.go
 
 compile:
   GOARCH=368 GOOS=linux  go build ${LDFLAGS}  -o artifact/${BINARY_NAME}-linux main.go
