@@ -13,8 +13,5 @@ compile:
 
 all: build compile
 
-clean:
-  go clean
-  rm artifact/${BINARY_NAME}-linux
-  rm artifact/${BINARY_NAME}-windows
+clean: go clean
 
