@@ -16,8 +16,6 @@ jobs:
         uses: actions/setup-go@v2.1.5
         with:
           go-version: 1.12.5
-      - name: Run make build
-        run: make build
-      - name: Run make clean
-        run: make clean
+        - name: Run go version
+          run: go version
 
