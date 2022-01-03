@@ -79,9 +79,13 @@ func exportingVariables(credentials utils.AWSCredentials, stsProfile string) {
 	var stdErrResult string
 	for _, value := range commandsMap {
 		err := Executor("aws", &stdOutResult, &stdErrResult, value...)
+		printCredsInformation(value[0],value[1])
 		if err != nil {
 			utils.ProcessError(err)
 		}
 	}
 	fmt.Printf("Run `export AWS_PROFILE=sts` for usage")
+}
+func printCredsInformation(credKey string,credValue string){
+	fmt.Printf("%s: [%s]\n",credKey,credValue)
 }

@@ -3,10 +3,11 @@ package config
 import (
 	"cloudin/utils"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
+
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -34,10 +35,10 @@ type Config struct {
 
 func buildConfig(configSet map[string]string, config *Config) {
 	config.Cloud.StsProfile = exportProfile
-	config.Cloud.Region = configSet[ConfigurationParams[3]]
-	config.Cloud.Profile = configSet[ConfigurationParams[2]]
-	config.Cloud.AWSUser = configSet[ConfigurationParams[1]]
 	config.Cloud.AWSAccount = configSet[ConfigurationParams[0]]
+	config.Cloud.AWSUser = configSet[ConfigurationParams[1]]
+	config.Cloud.Profile = configSet[ConfigurationParams[2]]
+	config.Cloud.Region = configSet[ConfigurationParams[3]]
 	config.Cloud.STSDuration = int32(tokenDuration)
 	config.Docker.RepoURL = fmt.Sprintf(repoUrlTemplate, config.Cloud.AWSAccount, config.Cloud.Region)
 }

@@ -19,7 +19,6 @@ func Executor(app string, stdout *string, stderror *string, args ...string) (err
 	cmd.Stderr = &stdErr
 	cmd.Stdout = &stdOut
 	err := cmd.Run()
-	fmt.Printf("Command: %q\n", cmd.Args)
 	if err != nil {
 		fmt.Println("Error: ", stdErr.String())
 		*stderror = stdErr.String()

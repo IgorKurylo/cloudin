@@ -6,9 +6,10 @@ import (
 	"cloudin/config"
 	"cloudin/utils"
 	"fmt"
-	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
 	"strings"
+
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
@@ -17,15 +18,12 @@ var (
 )
 var configFile = config.Config{}
 var (
-	configure = kingpin.Command("configure", "Configuration for Cloud In")
-	mfa       = kingpin.Command("mfa", "aws cli login with mfa code")
-	mfaCode   = mfa.Flag("code", "MFA Code").Required().String()
-	docker    = kingpin.Command("ecr-login", "aws cli login to ecr repository")
-
-	//cluster     = kingpin.Command("setup-cluster", "choose EKS cluster to load configuration")
-	//clusterArg  = cluster.Arg("name", "name of eks cluster").Required().String()
-	//regionFlag  = docker.Arg("region", "region on aws ecr repository").Required().String()
-	//repoUrlFlag = docker.Arg("url", "url on aws of ecr repository").Required().String()
+	configure        = kingpin.Command("configure", "Configuration for Cloud In")
+	mfa              = kingpin.Command("mfa", "aws cli login with mfa code")
+	mfaCode          = mfa.Flag("code", "MFA Code").Required().String()
+	docker           = kingpin.Command("ecr", "login to ecr repository")
+	cluster          = kingpin.Command("k8s", "choose EKS cluster to load configuration")
+	updateKubeConfig = cluster.Flag("update", "set T/F (true/false) for update kube config or export as environment variable").Required().String()
 )
 var configured bool
 var dir string
@@ -34,9 +32,8 @@ func main() {
 	printVersionInfo()
 	configured, dir = utils.ScanAWSDirectory()
 	awsCliExists := utils.CommandExists("aws")
-	dockerCliExists := utils.CommandExists("docker")
-	if !awsCliExists && !dockerCliExists {
-		fmt.Printf("aws & docker cli not found, please install and try again")
+	if !awsCliExists {
+		fmt.Printf("aws cli not found please install and try again")
 		os.Exit(1)
 	}
 
@@ -53,7 +50,6 @@ func commandsParsing() {
 		fmt.Print("please run the next command: 'aws configure'\n")
 		os.Exit(1)
 	}
-
 	switch kingpin.Parse() {
 	// login mfa code
 	case configure.FullCommand():
@@ -62,8 +58,32 @@ func commandsParsing() {
 		initConfiguration()
 		cmd.MFALogin(*mfaCode, configFile)
 	case docker.FullCommand():
-		initConfiguration()
-		cmd.DockerLogin(configFile, false)
+		dockerCliExists := utils.CommandExists("docker")
+		if dockerCliExists {
+			initConfiguration()
+			cmd.DockerLogin(configFile, false)
+		} else {
+			fmt.Printf("docker cli not found please install and try again")
+		}
+	case cluster.FullCommand():
+		kubectlCliExists := utils.CommandExists("kubectl")
+		if kubectlCliExists {
+			initConfiguration()
+			updateConfig := convertFlag(*updateKubeConfig)
+			cmd.K8SLogin(configFile, updateConfig)
+
+		} else {
+			fmt.Printf("kubectl cli not found please install and try again")
+		}
+	}
+}
+
+func convertFlag(s string) bool {
+	flag := strings.ToLower(s)
+	if flag == "t" || flag == "true" {
+		return true
+	} else {
+		return false
 	}
 }
 
@@ -83,5 +103,4 @@ func printVersionInfo() {
 	fmt.Println(fmt.Sprintf("CLI Application CloudIn\n"))
 	fmt.Println(fmt.Sprintf("BuildVersion: %s\n", BuildVersion))
 	fmt.Println(fmt.Sprintf("BuildTime: %s", BuildTime))
-
 }

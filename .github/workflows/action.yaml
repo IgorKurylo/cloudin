@@ -19,4 +19,4 @@ jobs:
       - name: build
         env:
           GO111MODULE: on
-        run: make build
+        run:
