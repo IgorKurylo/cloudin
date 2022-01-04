@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 )
@@ -51,7 +52,7 @@ func LoadConfig(config *Config) {
 	}
 	defer configFile.Close()
 	load(configFile, config)
-	fmt.Printf("Configuration loaded %s", configFile.Name())
+	fmt.Printf("Configuration loaded %s\n", configFile.Name())
 }
 func SaveConfig(configSet map[string]string) {
 	config := &Config{}
@@ -73,8 +74,8 @@ func SaveConfig(configSet map[string]string) {
 
 func configPath() string {
 	homeDir, _ := os.UserHomeDir()
-	configPathDir := fmt.Sprintf("%s/%s", homeDir, directoryConfigName)
-	return configPathDir
+	configPathDir := fmt.Sprintf("%s/%s/%s", homeDir, directoryConfigName, fileConfigName)
+	return filepath.FromSlash(configPathDir)
 }
 func saveToFile(config *Config, pathFile string) {
 	configData, err := yaml.Marshal(config)

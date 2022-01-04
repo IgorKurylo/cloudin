@@ -6,7 +6,7 @@ import (
 	"os/exec"
 )
 
-func Executor(app string, stdout *string, stderror *string, args ...string) (error) {
+func Executor(app string, stdout *string, stderror *string, args ...string) error {
 	var stdOut bytes.Buffer
 	var stdErr bytes.Buffer
 	var cmd *exec.Cmd
@@ -28,4 +28,3 @@ func Executor(app string, stdout *string, stderror *string, args ...string) (err
 	return nil
 
 }
-
