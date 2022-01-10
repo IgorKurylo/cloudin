@@ -67,13 +67,14 @@ func commandsParsing() {
 			fmt.Printf("docker cli not found please install and try again")
 		}
 	case cluster.FullCommand():
+		var index = 0
 		kubectlCliExists := utils.CommandExists("kubectl")
 		if kubectlCliExists {
 			initConfiguration()
 			cmd.EKSClusters(configFile)
 			if cmd.ClusterSize > 0 {
 				fmt.Println("Choose cluster from next list")
-				result, _ := fmt.Scanf("%d")
+				result, _ := fmt.Scanf("%d", &index)
 				if result <= cmd.ClusterSize {
 					clusterName, err := cmd.GetEKSClusterName(result)
 					if err != nil {

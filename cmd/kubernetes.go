@@ -15,10 +15,6 @@ var (
 	ClusterEKSList []string
 )
 
-type ClusterListResult struct {
-	clusters []string `json:clusters`
-}
-
 func K8SLogin(config config.Config, clusterName string) {
 
 	var stdOutResult string
@@ -29,18 +25,16 @@ func K8SLogin(config config.Config, clusterName string) {
 		utils.ProcessError(err)
 	}
 	kubeConfigPath := fmt.Sprintf("%s/%s/%s", homeDir, kubeDirectory, clusterName)
-	flags := []string{"eks", "--region", awsRegion, "update-kubeconfig", "--name", clusterName, "--kubeconfig", kubeConfigPath}
+	flags := []string{"eks", "--region", awsRegion, "update-kubeconfig", "--name", clusterName, "--kubeconfig", kubeConfigPath, "--profile", config.Cloud.StsProfile}
 	err = Executor("aws", &stdOutResult, &stdErrResult, flags...)
 	if err != nil {
-		utils.ProcessError(err)
+		utils.HandleErrorStdErr(stdErrResult)
 	}
 	if stdOutResult != "" {
 		fmt.Printf("eks update kubeconfig output %s\n", stdOutResult)
-		fmt.Println(fmt.Sprintf("kube config updated in  %s", stdOutResult))
 	} else {
 		fmt.Println(stdErrResult)
 	}
-
 }
 func clustersList(region string, profile string) []string {
 
@@ -51,6 +45,7 @@ func clustersList(region string, profile string) []string {
 	flags := []string{"eks", "list-clusters", "--region", region, "--profile", profile}
 	err := Executor("aws", &stdOutResult, &stdErrResult, flags...)
 	if err != nil {
+		utils.HandleErrorStdErr(stdErrResult)
 		utils.ProcessError(err)
 	}
 	if stdOutResult != "" {
@@ -71,7 +66,7 @@ func EKSClusters(config config.Config) {
 }
 func GetEKSClusterName(index int) (string, error) {
 	if index > 0 {
-		return ClusterEKSList[index], nil
+		return ClusterEKSList[index-1], nil
 	}
 	return "", errors.New("index out of range")
 }
